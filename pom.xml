@@ -111,6 +111,13 @@
     <redirectTestOutputToFile>true</redirectTestOutputToFile>
     <testRetryCount>2</testRetryCount>
 
+    <!-- SonarCloud additions -->
+    <sonar.organization>fanfarillo</sonar.organization>
+    <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+
+    <!-- JaCoCo additions -->
+    <sonar.coverage.jacoco.xmlReportPaths>../test-coverage/target/site/jacoco-aggregate/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+
     <!-- dependencies -->
     <arquillian-cube.version>1.18.2</arquillian-cube.version>
     <arquillian-junit.version>1.6.0.Final</arquillian-junit.version>
@@ -1051,6 +1058,7 @@
       <!-- profile used by jenkins CI -->
       <id>code-coverage</id>
       <build>
+       <pluginManagement>
         <plugins>
           <plugin>
             <groupId>org.eluder.coveralls</groupId>
@@ -1085,6 +1093,7 @@
             </executions>
           </plugin>
         </plugins>
+       </pluginManagement>
       </build>
     </profile>
     <profile>
