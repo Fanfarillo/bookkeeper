@@ -1201,7 +1201,7 @@
               <execution>
                 <id>source-release-assembly</id>
                 <configuration>
-                  <!-- we have a dedicated distribution module in bookkeeper-dist -->
+                  <!-- We have a dedicated distribution module in bookkeeper-dist -->
                   <skipAssembly>true</skipAssembly>
                 </configuration>
               </execution>
