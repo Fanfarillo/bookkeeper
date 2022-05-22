@@ -22,28 +22,29 @@
     <groupId>org.apache.bookkeeper</groupId>
     <version>4.16.0-SNAPSHOT</version>
   </parent>
+  <groupId>org.apache.bookkeeper.bookkeeper-server</groupId>
   <artifactId>bookkeeper-server</artifactId>
   <name>Apache BookKeeper :: Server</name>
   <dependencies>
     <dependency>
       <groupId>org.apache.bookkeeper</groupId>
       <artifactId>bookkeeper-common</artifactId>
-      <version>${project.parent.version}</version>
+      <version>4.16.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.bookkeeper</groupId>
       <artifactId>bookkeeper-common-allocator</artifactId>
-      <version>${project.parent.version}</version>
+      <version>4.16.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.bookkeeper</groupId>
       <artifactId>bookkeeper-proto</artifactId>
-      <version>${project.parent.version}</version>
+      <version>4.16.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.bookkeeper</groupId>
       <artifactId>bookkeeper-tools-framework</artifactId>
-      <version>${project.parent.version}</version>
+      <version>4.16.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.rocksdb</groupId>
@@ -87,12 +88,12 @@
     <dependency>
       <groupId>org.apache.bookkeeper.http</groupId>
       <artifactId>http-server</artifactId>
-      <version>${project.version}</version>
+      <version>4.16.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>org.apache.bookkeeper</groupId>
       <artifactId>circe-checksum</artifactId>
-      <version>${project.version}</version>
+      <version>4.16.0-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>commons-cli</groupId>
@@ -139,7 +140,7 @@
     <dependency>
       <groupId>org.apache.bookkeeper</groupId>
       <artifactId>bookkeeper-common</artifactId>
-      <version>${project.parent.version}</version>
+      <version>4.16.0-SNAPSHOT</version>
       <type>test-jar</type>
       <scope>test</scope>
     </dependency>
@@ -194,13 +195,13 @@
     <dependency>
       <groupId>org.apache.bookkeeper.stats</groupId>
       <artifactId>prometheus-metrics-provider</artifactId>
-      <version>${project.parent.version}</version>
+      <version>4.16.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.bookkeeper.http</groupId>
       <artifactId>vertx-http-server</artifactId>
-      <version>${project.parent.version}</version>
+      <version>4.16.0-SNAPSHOT</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
