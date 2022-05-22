@@ -36,166 +36,146 @@
         <dependency>
             <groupId>org.apache.bookkeeper</groupId>
             <artifactId>bookkeeper-proto</artifactId>
-            <version>4.16.0-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.bookkeeper</groupId>
             <artifactId>bookkeeper-server</artifactId>
-            <version>4.16.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.bookkeeper</groupId>
-            <artifactId>bookkeeper-stats</artifactId>
-            <version>4.16.0-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.bookkeeper</groupId>
             <artifactId>circe-checksum</artifactId>
-            <version>4.16.0-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.bookkeeper</groupId>
             <artifactId>cpu-affinity</artifactId>
-            <version>4.16.0-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.bookkeeper</groupId>
             <artifactId>microbenchmarks</artifactId>
-            <version>4.16.0-SNAPSHOT</version>
+            <version>${project.parent.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.bookkeeper.http</groupId>
+            <groupId>org.apache.bookkeeper.http</groupId>
             <artifactId>http-server</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.bookkeeper.http</groupId>
+            <groupId>org.apache.bookkeeper.http</groupId>
             <artifactId>servlet-http-server</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.bookkeeper.http</groupId>
+            <groupId>org.apache.bookkeeper.http</groupId>
             <artifactId>vertx-http-server</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.bookkeeper.stats.providers</groupId>
-            <artifactId>codahale-metrics-provider</artifactId>
-            <version>4.16.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.bookkeeper.bookkeeper.stats.providers</groupId>
-            <artifactId>prometheus-metrics-provider</artifactId>
+            <groupId>org.apache.bookkeeper.stats</groupId>
+            <artifactId>bookkeeper-stats-api</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.bookkeeper.metadata.drivers</groupId>
-            <artifactId>etcd</artifactId>
+            <artifactId>metadata-stores-etcd</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.apache.bookkeeper.stats</groupId>
-            <artifactId>utils</artifactId>
+            <artifactId>bookkeeper-stats-utils</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.stream</groupId>
-            <artifactId>api</artifactId>
+            <groupId>org.apache.bookkeeper</groupId>
+            <artifactId>stream-storage-api</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.stream</groupId>
+            <groupId>org.apache.bookkeeper</groupId>
             <artifactId>bk-grpc-name-resolver</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.stream.clients.java</groupId>
-            <artifactId>all</artifactId>
+            <groupId>org.apache.bookkeeper</groupId>
+            <artifactId>stream-storage-java-client</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.stream.clients.java</groupId>
-            <artifactId>base</artifactId>
+            <groupId>org.apache.bookkeeper</groupId>
+            <artifactId>stream-storage-java-client-base</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.stream.clients.java</groupId>
-            <artifactId>kv</artifactId>
+            <groupId>org.apache.bookkeeper</groupId>
+            <artifactId>stream-storage-java-kv-client</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.stream</groupId>
-            <artifactId>common</artifactId>
+            <groupId>org.apache.distributedlog</groupId>
+            <artifactId>distributedlog-common</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.stream.distributedlog</groupId>
-            <artifactId>common</artifactId>
+            <groupId>org.apache.distributedlog</groupId>
+            <artifactId>distributedlog-core</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.stream.distributedlog</groupId>
-            <artifactId>core</artifactId>
-            <version>4.16.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.bookkeeper.stream.distributedlog.io</groupId>
+            <groupId>org.apache.distributedlog</groupId>
             <artifactId>dlfs</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.stream.distributedlog</groupId>
-            <artifactId>protocol</artifactId>
+            <groupId>org.apache.distributedlog</groupId>
+            <artifactId>distributedlog-protocol</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.stream</groupId>
-            <artifactId>proto</artifactId>
+            <groupId>org.apache.bookkeeper</groupId>
+            <artifactId>stream-storage-proto</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.stream</groupId>
-            <artifactId>server</artifactId>
-            <version>4.16.0-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.bookkeeper.stream</groupId>
+            <groupId>org.apache.bookkeeper</groupId>
             <artifactId>statelib</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.stream.storage</groupId>
-            <artifactId>api</artifactId>
+            <groupId>org.apache.bookkeeper</groupId>
+            <artifactId>stream-storage-service-api</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.stream.storage</groupId>
-            <artifactId>impl</artifactId>
+            <groupId>org.apache.bookkeeper</groupId>
+            <artifactId>stream-storage-service-impl</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.tools</groupId>
-            <artifactId>all</artifactId>
+            <groupId>org.apache.bookkeeper.tests</groupId>
+            <artifactId>stream-storage-tests-common</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.tools</groupId>
-            <artifactId>framework</artifactId>
+            <groupId>org.apache.bookkeeper</groupId>
+            <artifactId>bookkeeper-tools-framework</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.tools</groupId>
-            <artifactId>ledger</artifactId>
+            <groupId>org.apache.bookkeeper</groupId>
+            <artifactId>bookkeeper-tools-ledger</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.tools</groupId>
-            <artifactId>perf</artifactId>
+            <groupId>org.apache.bookkeeper</groupId>
+            <artifactId>bookkeeper-perf</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
         <dependency>
-            <groupId>org.apache.bookkeeper.tools</groupId>
-            <artifactId>stream</artifactId>
+            <groupId>org.apache.bookkeeper</groupId>
+            <artifactId>stream-storage-cli</artifactId>
             <version>4.16.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
