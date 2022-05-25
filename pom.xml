@@ -906,15 +906,15 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${maven-surefire-plugin.version}</version>
-          <configuration>
-          <argLine>-Xmx2G -Djava.net.preferIPv4Stack=true -Dio.netty.leakDetection.level=paranoid</argLine>
+   <!--       <configuration>
+          <argLine>-Xmx2G -Djava.net.preferIPv4Stack=true -Dio.netty.leakDetection.level=paranoid</argLine> 
           <redirectTestOutputToFile>${redirectTestOutputToFile}</redirectTestOutputToFile>
           <forkCount>${forkCount.variable}</forkCount>
           <reuseForks>false</reuseForks>
           <trimStackTrace>false</trimStackTrace>
           <forkedProcessTimeoutInSeconds>1800</forkedProcessTimeoutInSeconds>
           <rerunFailingTestsCount>${testRetryCount}</rerunFailingTestsCount>
-        </configuration>
+        </configuration> -->
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -1082,26 +1082,11 @@
           <plugin>
             <groupId>org.jacoco</groupId>
             <artifactId>jacoco-maven-plugin</artifactId>
-            <version>0.8.6</version>
-            <configuration>
-              <dataFile>target/jacoco.exec</dataFile>
-            </configuration>
+            <version>0.8.0</version>
             <executions>
               <execution>
-                <id>pre-unit-test</id>
                 <goals>
-                    <goal>prepare-agent</goal>
-                </goals>
-                <configuration>
-                        <propertyName>jacoco.agent.argLine</propertyName>
-                        <destFile>target/jacoco.exec</destFile>
-                </configuration>
-              </execution>
-              <execution>
-                <id>default-report</id>
-                <phase>verify</phase>
-                <goals>
-                    <goal>report</goal>
+                  <goal>prepare-agent</goal>
                 </goals>
               </execution>
             </executions>
