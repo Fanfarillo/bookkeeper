@@ -45,6 +45,10 @@ public class TestBKConfiguration {
          * if testcase has zk error,just try 0 time for fast running
          */
         confReturn.setZkRetryBackoffMaxRetries(0);
+
+        //confReturn.setMetadataServiceUri("ServiceUri");
+        confReturn.setForceReadOnlyBookie(false);
+        confReturn.setDisableServerSocketBind(true);
         setLoopbackInterfaceAndAllowLoopback(confReturn);
         return confReturn;
     }

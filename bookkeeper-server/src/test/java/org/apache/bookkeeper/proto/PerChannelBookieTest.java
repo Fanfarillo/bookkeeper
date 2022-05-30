@@ -118,6 +118,7 @@ public class PerChannelBookieTest {
             ByteBuf byteBuf = Unpooled.buffer("This is the content of the entries".getBytes(StandardCharsets.UTF_8).length);
             ByteBufList byteBufList = ByteBufList.get(byteBuf);
 
+            //WARNING: here there is a NullPointerException
             this.bookieClient.addEntry(0, "masterKey".getBytes(StandardCharsets.UTF_8), 0, byteBufList,
                     null, new Object(), 0, false, null);
             this.bookieClient.addEntry(0, "masterKey".getBytes(StandardCharsets.UTF_8), 1, byteBufList,
@@ -193,14 +194,14 @@ public class PerChannelBookieTest {
 
         ServerTester tester = new ServerTester(conf);
 
-        BookKeeperTestClient bkc = new BookKeeperTestClient(baseClientConf, new TestStatsProvider());
+        /*BookKeeperTestClient bkc = new BookKeeperTestClient(baseClientConf, new TestStatsProvider());
         BookieId address = tester.getServer().getBookieId();
         Future<?> waitForBookie = conf.isForceReadOnlyBookie()
                 ? bkc.waitForReadOnlyBookie(address)
-                : bkc.waitForWritableBookie(address);
+                : bkc.waitForWritableBookie(address); */
 
         tester.getServer().start();
-        waitForBookie.get(30, TimeUnit.SECONDS);
+        //waitForBookie.get(30, TimeUnit.SECONDS);
 
         return tester;
 

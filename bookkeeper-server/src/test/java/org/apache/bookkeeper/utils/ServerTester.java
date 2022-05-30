@@ -8,6 +8,7 @@ import org.apache.bookkeeper.discover.RegistrationManager;
 import org.apache.bookkeeper.meta.LedgerManager;
 import org.apache.bookkeeper.meta.LedgerManagerFactory;
 import org.apache.bookkeeper.meta.MetadataBookieDriver;
+import org.apache.bookkeeper.meta.NullMetadataBookieDriver;
 import org.apache.bookkeeper.net.BookieSocketAddress;
 import org.apache.bookkeeper.proto.BookieServer;
 import org.apache.bookkeeper.replication.Auditor;
@@ -46,14 +47,15 @@ public class ServerTester {
         StatsLogger rootStatsLogger = provider.getStatsLogger("");
         StatsLogger bookieStats = rootStatsLogger.scope(BOOKIE_SCOPE);
 
-        metadataDriver = BookieResources.createMetadataDriver(conf, bookieStats);
+        //metadataDriver = BookieResources.createMetadataDriver(conf, bookieStats);
+        metadataDriver = new NullMetadataBookieDriver();
         registrationManager = metadataDriver.createRegistrationManager();
         lmFactory = metadataDriver.getLedgerManagerFactory();
         ledgerManager = lmFactory.newLedgerManager();
 
-        LegacyCookieValidation cookieValidation = new LegacyCookieValidation(
+        /* LegacyCookieValidation cookieValidation = new LegacyCookieValidation(
                 conf, registrationManager);
-        cookieValidation.checkCookies(Main.storageDirectoriesFromConf(conf));
+        cookieValidation.checkCookies(Main.storageDirectoriesFromConf(conf)); */
 
         DiskChecker diskChecker = BookieResources.createDiskChecker(conf);
         LedgerDirsManager ledgerDirsManager = BookieResources.createLedgerDirsManager(
