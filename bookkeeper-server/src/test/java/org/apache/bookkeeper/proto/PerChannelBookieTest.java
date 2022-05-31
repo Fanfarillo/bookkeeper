@@ -1,6 +1,5 @@
 package org.apache.bookkeeper.proto;
 
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.nio.NioEventLoopGroup;
 import org.apache.bookkeeper.client.BKException;
 import org.apache.bookkeeper.common.util.OrderedExecutor;
@@ -12,8 +11,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.nio.charset.StandardCharsets;
@@ -21,8 +18,7 @@ import java.util.Arrays;
 import java.util.Collection;
 
 import static org.mockito.ArgumentMatchers.isA;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 @RunWith(Parameterized.class)
 public class PerChannelBookieTest {
@@ -85,29 +81,26 @@ public class PerChannelBookieTest {
                 { 0,    1,    ParamType.INVALID, ParamType.INVALID, 0,    ParamType.EMPTY,   false,            false},
                 { 0,    2,    ParamType.INVALID, ParamType.INVALID, 1,    ParamType.EMPTY,   false,            false},
                 { 1,    -1,   ParamType.INVALID, ParamType.INVALID, 0,    ParamType.EMPTY,   true,             false},
-                { 1,    0,    ParamType.VALID,   ParamType.VALID,   1,    ParamType.INVALID, true,             false},
-                { 1,    1,    ParamType.VALID,   ParamType.VALID,   0,    ParamType.VALID,   false,            false},
-                { 1,    2,    ParamType.VALID,   ParamType.VALID,   1,    ParamType.VALID,   false,            false},
-                { 2,    -1,   ParamType.VALID,   ParamType.VALID,   0,    ParamType.VALID,   true,             false},
-                { 2,    0,    ParamType.VALID,   ParamType.VALID,   1,    ParamType.VALID,   true,             false},
-                { 2,    1,    ParamType.VALID,   ParamType.VALID,   0,    ParamType.VALID,   false,            false},
-                { 2,    2,    ParamType.VALID,   ParamType.VALID,   1,    ParamType.VALID,   false,            false}
+                { 1,    0,    ParamType.VALID,   ParamType.VALID,   1,    ParamType.INVALID, true,             true},
+                { 1,    1,    ParamType.VALID,   ParamType.VALID,   0,    ParamType.VALID,   false,            true},
+                { 1,    2,    ParamType.VALID,   ParamType.VALID,   1,    ParamType.VALID,   false,            true},
+                { 2,    -1,   ParamType.VALID,   ParamType.VALID,   0,    ParamType.VALID,   true,             true},
+                { 2,    0,    ParamType.VALID,   ParamType.VALID,   1,    ParamType.VALID,   true,             true},
+                { 2,    1,    ParamType.VALID,   ParamType.VALID,   0,    ParamType.VALID,   false,            true},
+                { 2,    2,    ParamType.VALID,   ParamType.VALID,   1,    ParamType.VALID,   false,            true}
         });
     }
 
     public static BookkeeperInternalCallbacks.ReadEntryCallback getMockedReadCb() {
 
-        BookkeeperInternalCallbacks.ReadEntryCallback cb = Mockito.mock(BookkeeperInternalCallbacks.ReadEntryCallback.class);
+        BookkeeperInternalCallbacks.ReadEntryCallback cb = mock(BookkeeperInternalCallbacks.ReadEntryCallback.class);
 
-        /* Mockito.when(cb.readEntryComplete(BKException.Code.IncorrectParameterException, isA(Long.class), isA(Long.class),
-                null, isA(Object.class))).thenAnswer(new Answer<void>(){
-                    public void answer(InvocationOnMock invocation) throws Exception {
-                        throw Exception;
-                    }
-        }); */
+        Answer<Boolean> answer = invocation -> {
+            throw new Exception();
+        };
+        doAnswer(answer).when(cb).readEntryComplete(BKException.Code.IncorrectParameterException, isA(Long.class),
+                isA(Long.class), null, isA(Object.class));
 
-        doNothing().when(cb).readEntryComplete(isA(Integer.class), isA(Long.class), isA(Long.class), isA(ByteBuf.class),
-                isA(Object.class));
         return cb;
 
     }
