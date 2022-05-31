@@ -1,29 +1,24 @@
 package org.apache.bookkeeper.proto;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.nio.NioEventLoopGroup;
-import org.apache.bookkeeper.client.BookKeeperTestClient;
+import org.apache.bookkeeper.client.BKException;
 import org.apache.bookkeeper.common.util.OrderedExecutor;
-import org.apache.bookkeeper.conf.ClientConfiguration;
 import org.apache.bookkeeper.conf.ServerConfiguration;
-import org.apache.bookkeeper.net.BookieId;
 import org.apache.bookkeeper.net.BookieSocketAddress;
-import org.apache.bookkeeper.util.ByteBufList;
 import org.apache.bookkeeper.utils.ServerTester;
 import org.apache.bookkeeper.utils.TestBKConfiguration;
-import org.apache.bookkeeper.utils.TestStatsProvider;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
 
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.doNothing;
@@ -42,8 +37,6 @@ public class PerChannelBookieTest {
     private boolean isExceptionExpected;
 
     private PerChannelBookieClient bookieClient;
-
-    private final ClientConfiguration baseClientConf = TestBKConfiguration.newClientConfiguration();
 
     public PerChannelBookieTest(long readLedgerId, long readEntryId, ParamType readCbType, ParamType readCtxType,
                                 int readFlags, ParamType readMasterKeyType, boolean readAllowFirstFail,
@@ -83,55 +76,39 @@ public class PerChannelBookieTest {
     public static Collection<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
                 //L_ID  E_ID  CB                 CTX                FLG   MASTER_KEY         ALLOW_FIRST_FAIL  EXCEPTION
-                { -1,   -1,   ParamType.NULL,    ParamType.NULL,    0,    ParamType.NULL,    true,             true},
+                { -1,   -1,   ParamType.NULL,    ParamType.NULL,    0,    ParamType.NULL,    true,             false},
                 { -1,   0,    ParamType.NULL,    ParamType.NULL,    1,    ParamType.NULL,    true,             true},
-                { -1,   1,    ParamType.NULL,    ParamType.NULL,    0,    ParamType.NULL,    false,            true},
+                { -1,   1,    ParamType.NULL,    ParamType.NULL,    0,    ParamType.NULL,    false,            false},
                 { -1,   2,    ParamType.NULL,    ParamType.NULL,    1,    ParamType.NULL,    false,            true},
-                { 0,    -1,   ParamType.NULL,    ParamType.NULL,    0,    ParamType.NULL,    true,             true},
+                { 0,    -1,   ParamType.NULL,    ParamType.NULL,    0,    ParamType.NULL,    true,             false},
                 { 0,    0,    ParamType.NULL,    ParamType.NULL,    1,    ParamType.NULL,    true,             true},
-                { 0,    1,    ParamType.INVALID, ParamType.INVALID, 0,    ParamType.EMPTY,   false,            true},
-                { 0,    2,    ParamType.INVALID, ParamType.INVALID, 1,    ParamType.EMPTY,   false,            true},
-                { 1,    -1,   ParamType.INVALID, ParamType.INVALID, 0,    ParamType.EMPTY,   true,             true},
-                { 1,    0,    ParamType.VALID,   ParamType.VALID,   1,    ParamType.INVALID, true,             true},
+                { 0,    1,    ParamType.INVALID, ParamType.INVALID, 0,    ParamType.EMPTY,   false,            false},
+                { 0,    2,    ParamType.INVALID, ParamType.INVALID, 1,    ParamType.EMPTY,   false,            false},
+                { 1,    -1,   ParamType.INVALID, ParamType.INVALID, 0,    ParamType.EMPTY,   true,             false},
+                { 1,    0,    ParamType.VALID,   ParamType.VALID,   1,    ParamType.INVALID, true,             false},
                 { 1,    1,    ParamType.VALID,   ParamType.VALID,   0,    ParamType.VALID,   false,            false},
-                { 1,    2,    ParamType.VALID,   ParamType.VALID,   1,    ParamType.VALID,   false,            true},
-                { 2,    -1,   ParamType.VALID,   ParamType.VALID,   0,    ParamType.VALID,   true,             true},
-                { 2,    0,    ParamType.VALID,   ParamType.VALID,   1,    ParamType.VALID,   true,             true},
-                { 2,    1,    ParamType.VALID,   ParamType.VALID,   0,    ParamType.VALID,   false,            true},
-                { 2,    2,    ParamType.VALID,   ParamType.VALID,   1,    ParamType.VALID,   false,            true}
+                { 1,    2,    ParamType.VALID,   ParamType.VALID,   1,    ParamType.VALID,   false,            false},
+                { 2,    -1,   ParamType.VALID,   ParamType.VALID,   0,    ParamType.VALID,   true,             false},
+                { 2,    0,    ParamType.VALID,   ParamType.VALID,   1,    ParamType.VALID,   true,             false},
+                { 2,    1,    ParamType.VALID,   ParamType.VALID,   0,    ParamType.VALID,   false,            false},
+                { 2,    2,    ParamType.VALID,   ParamType.VALID,   1,    ParamType.VALID,   false,            false}
         });
     }
 
     public static BookkeeperInternalCallbacks.ReadEntryCallback getMockedReadCb() {
 
-        BookkeeperInternalCallbacks.ReadEntryCallback cb = mock(BookkeeperInternalCallbacks.ReadEntryCallback.class);
+        BookkeeperInternalCallbacks.ReadEntryCallback cb = Mockito.mock(BookkeeperInternalCallbacks.ReadEntryCallback.class);
+
+        /* Mockito.when(cb.readEntryComplete(BKException.Code.IncorrectParameterException, isA(Long.class), isA(Long.class),
+                null, isA(Object.class))).thenAnswer(new Answer<void>(){
+                    public void answer(InvocationOnMock invocation) throws Exception {
+                        throw Exception;
+                    }
+        }); */
+
         doNothing().when(cb).readEntryComplete(isA(Integer.class), isA(Long.class), isA(Long.class), isA(ByteBuf.class),
                 isA(Object.class));
         return cb;
-
-    }
-
-    @Before
-    public void setup() {
-
-        try {
-            ByteBuf byteBuf = Unpooled.buffer("This is the content of the entries".getBytes(StandardCharsets.UTF_8).length);
-            ByteBufList byteBufList = ByteBufList.get(byteBuf);
-
-            //WARNING: here there is a NullPointerException
-            this.bookieClient.addEntry(0, "masterKey".getBytes(StandardCharsets.UTF_8), 0, byteBufList,
-                    null, new Object(), 0, false, null);
-            this.bookieClient.addEntry(0, "masterKey".getBytes(StandardCharsets.UTF_8), 1, byteBufList,
-                    null, new Object(), 0, false, null);
-            this.bookieClient.addEntry(1, "masterKey".getBytes(StandardCharsets.UTF_8), 0, byteBufList,
-                    null, new Object(), 0, false, null);
-            this.bookieClient.addEntry(1, "masterKey".getBytes(StandardCharsets.UTF_8), 1, byteBufList,
-                    null, new Object(), 0, false, null);
-
-        } catch(Exception e) {
-            Assert.fail("No exception should be thrown during setup. Instead, " + e.getClass().getName() +
-                    " has been thrown.");
-        }
 
     }
 
@@ -193,16 +170,7 @@ public class PerChannelBookieTest {
     private ServerTester startBookie(ServerConfiguration conf) throws Exception {
 
         ServerTester tester = new ServerTester(conf);
-
-        /*BookKeeperTestClient bkc = new BookKeeperTestClient(baseClientConf, new TestStatsProvider());
-        BookieId address = tester.getServer().getBookieId();
-        Future<?> waitForBookie = conf.isForceReadOnlyBookie()
-                ? bkc.waitForReadOnlyBookie(address)
-                : bkc.waitForWritableBookie(address); */
-
         tester.getServer().start();
-        //waitForBookie.get(30, TimeUnit.SECONDS);
-
         return tester;
 
     }
