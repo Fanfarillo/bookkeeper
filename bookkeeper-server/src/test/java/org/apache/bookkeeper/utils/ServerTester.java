@@ -85,24 +85,6 @@ public class ServerTester {
         autoRecovery = null;
     }
 
-    public ServerTester(ServerConfiguration conf, Bookie b) throws Exception {
-        this.conf = conf;
-        provider = new TestStatsProvider();
-
-        metadataDriver = null;
-        registrationManager = null;
-        ledgerManager = null;
-        lmFactory = null;
-        storage = null;
-
-        bookie = b;
-        server = new BookieServer(conf, b, provider.getStatsLogger(""),
-                allocator, new MockUncleanShutdownDetection());
-        address = BookieImpl.getBookieAddress(conf);
-
-        autoRecovery = null;
-    }
-
     void startAutoRecovery() throws Exception {
         LOG.debug("Starting Auditor Recovery for the bookie: {}", address);
         autoRecovery = new AutoRecoveryMain(conf);
