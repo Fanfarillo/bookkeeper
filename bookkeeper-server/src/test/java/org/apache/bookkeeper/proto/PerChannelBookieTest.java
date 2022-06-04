@@ -9,6 +9,7 @@ import org.apache.bookkeeper.utils.InvalidEntryExistsCallback;
 import org.apache.bookkeeper.utils.InvalidObject;
 import org.apache.bookkeeper.utils.ServerTester;
 import org.apache.bookkeeper.utils.TestBKConfiguration;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,12 +28,14 @@ public class PerChannelBookieTest {
 
     private long readLedgerId;
     private long readEntryId;
-    private ParamType readCbType;
-    private ParamType readCtxType;
+    private BookkeeperInternalCallbacks.ReadEntryCallback readCb;
+    private Object readCtx;
     private int readFlags;
     private ParamType readMasterKeyType;
+    private byte[] readMasterKey;
     private boolean readAllowFirstFail;
     private boolean isExceptionExpected;
+    private boolean isExceptionThrown = false;
 
     private ServerTester server;
     private PerChannelBookieClient bookieClient;
@@ -52,8 +55,6 @@ public class PerChannelBookieTest {
 
         this.readLedgerId = readLedgerId;
         this.readEntryId = readEntryId;
-        this.readCbType = readCbType;
-        this.readCtxType = readCtxType;
         this.readFlags = readFlags;
         this.readMasterKeyType = readMasterKeyType;
         this.readAllowFirstFail = readAllowFirstFail;
@@ -64,9 +65,49 @@ public class PerChannelBookieTest {
             this.bookieClient = new PerChannelBookieClient(OrderedExecutor.newBuilder().build(), new NioEventLoopGroup(),
                     this.server.getServer().getBookieId(), BookieSocketAddress.LEGACY_BOOKIEID_RESOLVER);
 
+            switch(readCbType) {
+                case NULL:
+                    break;
+                case VALID:
+                    this.readCb = getMockedReadCb();
+                    break;
+                case INVALID:
+                    this.readCb = new InvalidEntryExistsCallback();
+                    break;
+            }
+
+            switch(readCtxType) {
+                case NULL:
+                    break;
+                case VALID:
+                    this.readCtx = new Object();
+                    break;
+                case INVALID:
+                    this.readCtx = new InvalidObject();
+                    break;
+            }
+
+            switch(readMasterKeyType) {
+                case NULL:
+                    break;
+                case EMPTY:
+                    this.readMasterKey = new byte[]{};
+                    break;
+                case VALID:
+                    this.readMasterKey =
+                            this.server.getServer().getBookie().getLedgerStorage().readMasterKey(this.readLedgerId);
+                    break;
+                case INVALID:
+                    this.readMasterKey = "notMasterKey".getBytes(StandardCharsets.UTF_8);
+                    break;
+            }
+
         } catch(Exception e) {
-            Assert.fail("No exception should be thrown during configuration. Instead, " + e.getClass().getName() +
-                    " has been thrown.");
+            Assert.assertSame("An exception should be thrown during configuration only if namesType == INVALID."
+                            + " Instead, " + e.getClass().getName() + " has been thrown and readCtxType == "
+                            + readCtxType + ".", readCtxType, ParamType.INVALID);
+            this.isExceptionThrown = true;
+
         }
 
     }
@@ -142,62 +183,6 @@ public class PerChannelBookieTest {
 
     }
 
-    @Test
-    public void testReadEntry() {
-
-        try {
-            BookkeeperInternalCallbacks.ReadEntryCallback cb = null;
-            Object ctx = null;
-            byte[] masterKey = null;
-
-            switch(this.readCbType) {
-                case NULL:
-                    break;
-                case VALID:
-                    cb = getMockedReadCb();
-                    break;
-                case INVALID:
-                    cb = new InvalidEntryExistsCallback();
-                    break;
-            }
-
-            switch(this.readCtxType) {
-                case NULL:
-                    break;
-                case VALID:
-                    ctx = new Object();
-                    break;
-                case INVALID:
-                    ctx = new InvalidObject();
-                    break;
-            }
-
-            switch(this.readMasterKeyType) {
-                case NULL:
-                    break;
-                case EMPTY:
-                    masterKey = new byte[]{};
-                    break;
-                case VALID:
-                    masterKey = this.server.getServer().getBookie().getLedgerStorage().readMasterKey(this.readLedgerId);
-                    break;
-                case INVALID:
-                    masterKey = "notMasterKey".getBytes(StandardCharsets.UTF_8);
-                    break;
-            }
-
-            this.bookieClient.readEntry(this.readLedgerId, this.readEntryId, cb, ctx, this.readFlags, masterKey,
-                    this.readAllowFirstFail);
-            Assert.assertFalse("An exception was expected.", this.isExceptionExpected);
-
-        } catch(Exception e) {
-            e.printStackTrace();
-            Assert.assertTrue("No exception was expected, but " + e.getClass().getName() + " has been thrown.",
-                    this.isExceptionExpected);
-        }
-
-    }
-
     private ServerTester startBookie(ServerConfiguration conf) throws Exception {
 
         ServerTester tester = new ServerTester(conf);
@@ -205,6 +190,32 @@ public class PerChannelBookieTest {
                 "masterKey".getBytes(StandardCharsets.UTF_8));
         tester.getServer().start();
         return tester;
+
+    }
+
+    @Test
+    public void testReadEntry() {
+
+        try {
+            if(this.isExceptionThrown) {
+                Assert.assertTrue("No exception was expected, but an exception during configuration phase has" +
+                                " been thrown.", this.isExceptionExpected);
+            } else {
+                this.bookieClient.readEntry(this.readLedgerId, this.readEntryId, this.readCb, this.readCtx,
+                        this.readFlags, this.readMasterKey, this.readAllowFirstFail);
+                Assert.assertFalse("An exception was expected.", this.isExceptionExpected);
+            }
+
+        } catch(Exception e) {
+            Assert.assertTrue("No exception was expected, but " + e.getClass().getName() + " has been thrown.",
+                    this.isExceptionExpected);
+        }
+
+    }
+
+    @After
+    public void cleanEnv() {
+        this.server.getServer().getBookie().shutdown();
 
     }
 
