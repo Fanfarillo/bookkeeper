@@ -14,7 +14,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.mockito.stubbing.Answer;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
@@ -31,7 +30,6 @@ public class PerChannelBookieTest {
     private BookkeeperInternalCallbacks.ReadEntryCallback readCb;
     private Object readCtx;
     private int readFlags;
-    private ParamType readMasterKeyType;
     private byte[] readMasterKey;
     private boolean readAllowFirstFail;
     private boolean isExceptionExpected;
@@ -56,7 +54,6 @@ public class PerChannelBookieTest {
         this.readLedgerId = readLedgerId;
         this.readEntryId = readEntryId;
         this.readFlags = readFlags;
-        this.readMasterKeyType = readMasterKeyType;
         this.readAllowFirstFail = readAllowFirstFail;
         this.isExceptionExpected = isExceptionExpected;
 
@@ -67,6 +64,7 @@ public class PerChannelBookieTest {
 
             switch(readCbType) {
                 case NULL:
+                    this.readCb = null;
                     break;
                 case VALID:
                     this.readCb = getMockedReadCb();
@@ -78,6 +76,7 @@ public class PerChannelBookieTest {
 
             switch(readCtxType) {
                 case NULL:
+                    this.readCtx = null;
                     break;
                 case VALID:
                     this.readCtx = new Object();
@@ -89,6 +88,7 @@ public class PerChannelBookieTest {
 
             switch(readMasterKeyType) {
                 case NULL:
+                    this.readMasterKey = null;
                     break;
                 case EMPTY:
                     this.readMasterKey = new byte[]{};
@@ -163,21 +163,15 @@ public class PerChannelBookieTest {
                 { -1,   -1,   ParamType.VALID,   ParamType.INVALID, 4,    ParamType.NULL,    true,             true},
                 { -1,   0,    ParamType.VALID,   ParamType.VALID,   4,    ParamType.EMPTY,   true,             false},
                 { 0,    -1,   ParamType.VALID,   ParamType.VALID,   4,    ParamType.INVALID, false,            false},
-                { 0,    0,    ParamType.VALID,   ParamType.NULL,    4,    ParamType.VALID,   false,            false},
+                { 0,    0,    ParamType.VALID,   ParamType.NULL,    4,    ParamType.VALID,   false,            false}
         });
     }
 
     private BookkeeperInternalCallbacks.ReadEntryCallback getMockedReadCb() {
 
         BookkeeperInternalCallbacks.ReadEntryCallback cb = mock(BookkeeperInternalCallbacks.ReadEntryCallback.class);
-
-        Answer<Void> answer = invocation -> {
-            if(this.readMasterKeyType != ParamType.VALID)
-                throw new RuntimeException();
-            return null;
-        };
-        doAnswer(answer).when(cb).readEntryComplete(isA(Integer.class), isA(Long.class), isA(Long.class),
-                isA(ByteBuf.class), isA(Object.class));
+        doNothing().when(cb).readEntryComplete(isA(Integer.class), isA(Long.class), isA(Long.class), isA(ByteBuf.class),
+                isA(Object.class));
 
         return cb;
 
@@ -219,7 +213,7 @@ public class PerChannelBookieTest {
 
     }
 
-    public enum ParamType {
+    private enum ParamType {
         NULL, EMPTY, VALID, INVALID
     }
 
