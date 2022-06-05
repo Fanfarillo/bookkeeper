@@ -208,7 +208,7 @@ public class PerChannelBookieTest {
     }
 
     @After
-    public void cleanEnv() {
+    public void tearDown() {
         this.server.getServer().getBookie().shutdown();
 
     }

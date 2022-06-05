@@ -3,7 +3,9 @@ package org.apache.bookkeeper.bookie;
 import org.apache.bookkeeper.conf.ServerConfiguration;
 import org.apache.bookkeeper.util.IOUtils;
 import org.apache.bookkeeper.utils.TestBKConfiguration;
+import org.junit.After;
 import org.junit.Assert;
+import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 
@@ -21,27 +23,31 @@ import static org.apache.bookkeeper.util.Shell.LOG;
 public class JournalTest {
 
     private long readJournalId;
-    private long journalPos;        //TODO: maybe we need a ParamType value also for journalPos
+    private long journalPos;
     private Journal.JournalScanner scanner;
+    private long expectedOutput;
     private boolean isExceptionExpected;
 
-    private List<File> tempDirs = new ArrayList<File>();
+    private final List<File> tempDirs = new ArrayList<>();
+    private BookieImpl bookie;
+    private Journal journal;
 
-    public JournalTest(long readJournalId, long journalPos, ParamType scannerType, boolean isExceptionExpected) {
-        configure(readJournalId, journalPos, scannerType, isExceptionExpected);
+    public JournalTest(IdType readJournalIdType, long journalPos, ParamType scannerType,
+                       boolean isExceptionExpected) {
+
+        configure(readJournalIdType, journalPos, scannerType, isExceptionExpected);
 
     }
 
-    private void configure(long readJournalId, long journalPos, ParamType scannerType, boolean isExceptionExpected) {
+    private void configure(IdType readJournalIdType, long journalPos, ParamType scannerType,
+                           boolean isExceptionExpected) {
 
-        this.readJournalId = readJournalId;
         this.journalPos = journalPos;
         this.isExceptionExpected = isExceptionExpected;
-
         try {
-            File journalDir = createTempDir("bookie", "journal");
+            File journalDir = createTempDir("journal");
             BookieImpl.checkDirectoryStructure(BookieImpl.getCurrentDirectory(journalDir));
-            File ledgerDir = createTempDir("bookie", "ledger");
+            File ledgerDir = createTempDir("ledger");
             BookieImpl.checkDirectoryStructure(BookieImpl.getCurrentDirectory(ledgerDir));
 
             JournalUtil.writeV4Journal(BookieImpl.getCurrentDirectory(journalDir), 100, "test".getBytes());
@@ -51,7 +57,20 @@ public class JournalTest {
                     .setLedgerDirNames(new String[] { ledgerDir.getPath() })
                     .setMetadataServiceUri(null);
 
-            BookieImpl b = new TestBookieImpl(conf);    //TODO: maybe it has to be an attribute
+            this.bookie = new TestBookieImpl(conf);
+            this.journal = this.bookie.journals.get(0);
+            long actualJournalId = Journal.listJournalIds(this.journal.getJournalDirectory(), null).get(0);
+
+            switch(readJournalIdType) {
+                case SAME:
+                    this.readJournalId = actualJournalId;
+                    this.expectedOutput = 106860;
+                    break;
+                case DIFF:
+                    this.readJournalId = actualJournalId+1;
+                    this.expectedOutput = 516;
+                    break;
+            }
 
             switch(scannerType) {
                 case NULL:
@@ -75,30 +94,80 @@ public class JournalTest {
     @Parameterized.Parameters
     public static Collection<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
-                //J_ID          J_POS           SCANNER                 EXCEPTION
-                { -1,           -1,             ParamType.NULL,         true},
-                { -1,           0,              ParamType.NULL,         true},
-                { -1,           1000,           ParamType.VALID,        false},
-                { -1,           1001,           ParamType.VALID,        false},
-                { 0,            0,              ParamType.VALID,        false},
-                { 0,            -1,             ParamType.VALID,        false},
-                { 0,            1000,           ParamType.INVALID,      true},
-                { 0,            1001,           ParamType.INVALID,      true}
-
+                //J_ID             J_POS        SCANNER                 EXCEPTION
+                { IdType.SAME,     -1,          ParamType.NULL,         true},
+                { IdType.SAME,     -1,          ParamType.VALID,        false},
+                { IdType.SAME,     -1,          ParamType.INVALID,      true},
+                { IdType.SAME,     0,           ParamType.NULL,         true},
+                { IdType.SAME,     0,           ParamType.VALID,        false},
+                { IdType.SAME,     0,           ParamType.INVALID,      true},
+                { IdType.SAME,     1,           ParamType.NULL,         false},
+                { IdType.SAME,     1,           ParamType.VALID,        false},
+                { IdType.SAME,     1,           ParamType.INVALID,      false},
+                { IdType.DIFF,     -1,          ParamType.NULL,         false},
+                { IdType.DIFF,     -1,          ParamType.VALID,        false},
+                { IdType.DIFF,     -1,          ParamType.INVALID,      false},
+                { IdType.DIFF,     0,           ParamType.NULL,         false},
+                { IdType.DIFF,     0,           ParamType.VALID,        false},
+                { IdType.DIFF,     0,           ParamType.INVALID,      false},
+                { IdType.DIFF,     1,           ParamType.NULL,         false},
+                { IdType.DIFF,     1,           ParamType.VALID,        false},
+                { IdType.DIFF,     1,           ParamType.INVALID,      false}
         });
     }
 
-    private File createTempDir(String prefix, String suffix) throws IOException {
-        File dir = IOUtils.createTempDir(prefix, suffix);
+    private File createTempDir(String suffix) throws IOException {
+        File dir = IOUtils.createTempDir("bookie", suffix);
         tempDirs.add(dir);
         return dir;
+    }
+
+    @Test
+    public void testScanJournal() {
+
+        try {
+            long actualOutput = this.journal.scanJournal(this.readJournalId, this.journalPos, this.scanner);
+            Assert.assertFalse("An exception was expected.", this.isExceptionExpected);
+
+            //if readJournalId != actualJournalId then actualOutput must be 516 (expected)
+            //if readJournalId == actualJournalId and journalPos<=0 then actual output must be 106.860 (expected)
+            if(this.readJournalId != Journal.listJournalIds(this.journal.getJournalDirectory(), null).get(0)
+                    || this.journalPos<=0) {
+                Assert.assertEquals("actualOutput != expectedOutput", this.expectedOutput, actualOutput);
+            }
+            else {
+                Assert.assertNotEquals("actualOutput == (un)expectedOutput", this.expectedOutput, actualOutput);
+            }
+
+        } catch(Exception e) {
+            Assert.assertTrue("No exception was expected, but " + e.getClass().getName() + " has been thrown.",
+                    this.isExceptionExpected);
+        }
+
+    }
+
+    @After
+    public void tearDown() {
+
+        this.bookie.shutdown();
+
+        for (File dir : tempDirs) {
+            dir.setWritable(true, false);
+            dir.delete();
+        }
+        tempDirs.clear();
+
     }
 
     private enum ParamType {
         NULL, VALID, INVALID
     }
 
-    private class DummyJournalScan implements Journal.JournalScanner {
+    private enum IdType {
+        SAME, DIFF
+    }
+
+    private static class DummyJournalScan implements Journal.JournalScanner {
 
         @Override
         public void process(int journalVersion, long offset, ByteBuffer entry) {
@@ -106,12 +175,13 @@ public class JournalTest {
         }
     }
 
-    private class InvalidJournalScan implements Journal.JournalScanner {
+    private static class InvalidJournalScan implements Journal.JournalScanner {
 
         @Override
         public void process(int journalVersion, long offset, ByteBuffer entry) {
             throw new RuntimeException();
         }
+
     }
 
 }
