@@ -48,8 +48,8 @@ public class PerChannelBookieTest {
     }
 
     private void configure(long readLedgerId, long readEntryId, ParamType readCbType, ParamType readCtxType,
-                          int readFlags, ParamType readMasterKeyType, boolean readAllowFirstFail,
-                          boolean isExceptionExpected) {
+                           int readFlags, ParamType readMasterKeyType, boolean readAllowFirstFail,
+                           boolean isExceptionExpected) {
 
         this.readLedgerId = readLedgerId;
         this.readEntryId = readEntryId;
@@ -104,8 +104,8 @@ public class PerChannelBookieTest {
 
         } catch(Exception e) {
             Assert.assertSame("An exception should be thrown during configuration only if namesType == INVALID."
-                            + " Instead, " + e.getClass().getName() + " has been thrown and readCtxType == "
-                            + readCtxType + ".", readCtxType, ParamType.INVALID);
+                    + " Instead, " + e.getClass().getName() + " has been thrown and readCtxType == "
+                    + readCtxType + ".", readCtxType, ParamType.INVALID);
             this.isExceptionThrown = true;
 
         }
@@ -193,7 +193,7 @@ public class PerChannelBookieTest {
         try {
             if(this.isExceptionThrown) {
                 Assert.assertTrue("No exception was expected, but an exception during configuration phase has" +
-                                " been thrown.", this.isExceptionExpected);
+                        " been thrown.", this.isExceptionExpected);
             } else {
                 this.bookieClient.readEntry(this.readLedgerId, this.readEntryId, this.readCb, this.readCtx,
                         this.readFlags, this.readMasterKey, this.readAllowFirstFail);
