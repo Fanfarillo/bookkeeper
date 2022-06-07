@@ -1,10 +1,14 @@
 package org.apache.bookkeeper.proto;
 
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.Unpooled;
 import io.netty.channel.nio.NioEventLoopGroup;
+import org.apache.bookkeeper.client.api.WriteFlag;
 import org.apache.bookkeeper.common.util.OrderedExecutor;
 import org.apache.bookkeeper.conf.ServerConfiguration;
+import org.apache.bookkeeper.net.BookieId;
 import org.apache.bookkeeper.net.BookieSocketAddress;
+import org.apache.bookkeeper.util.ByteBufList;
 import org.apache.bookkeeper.utils.InvalidEntryExistsCallback;
 import org.apache.bookkeeper.utils.InvalidObject;
 import org.apache.bookkeeper.utils.ServerTester;
@@ -18,6 +22,7 @@ import org.junit.runners.Parameterized;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.EnumSet;
 
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.*;
@@ -177,6 +182,16 @@ public class PerChannelBookieTest {
 
     }
 
+    private BookkeeperInternalCallbacks.WriteCallback getMockedWriteCb() {
+
+        BookkeeperInternalCallbacks.WriteCallback cb = mock(BookkeeperInternalCallbacks.WriteCallback.class);
+        doNothing().when(cb).writeComplete(isA(Integer.class), isA(Long.class), isA(Long.class), isA(BookieId.class),
+                isA(Object.class));
+
+        return cb;
+
+    }
+
     private ServerTester startBookie(ServerConfiguration conf) throws Exception {
 
         ServerTester tester = new ServerTester(conf);
@@ -195,6 +210,14 @@ public class PerChannelBookieTest {
                 Assert.assertTrue("No exception was expected, but an exception during configuration phase has" +
                         " been thrown.", this.isExceptionExpected);
             } else {
+                if(this.readLedgerId == 0 & this.readEntryId == 0) {
+                    ByteBuf byteBuf = Unpooled.buffer("This is the entry content".getBytes(StandardCharsets.UTF_8).length);
+                    ByteBufList byteBufList = ByteBufList.get(byteBuf);
+                    EnumSet<WriteFlag> writeFlags = EnumSet.allOf(WriteFlag.class);
+                    this.bookieClient.addEntry(0, this.readMasterKey, 0, byteBufList, getMockedWriteCb(),
+                            new Object(), 0, false, writeFlags);
+                }
+
                 this.bookieClient.readEntry(this.readLedgerId, this.readEntryId, this.readCb, this.readCtx,
                         this.readFlags, this.readMasterKey, this.readAllowFirstFail);
                 Assert.assertFalse("An exception was expected.", this.isExceptionExpected);
