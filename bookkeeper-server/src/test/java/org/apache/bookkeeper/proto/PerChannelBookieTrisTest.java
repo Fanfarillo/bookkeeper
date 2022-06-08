@@ -102,36 +102,12 @@ public class PerChannelBookieTrisTest {
     public static Collection<Object[]> getParameters() {
         return Arrays.asList(new Object[][] {
                 //L_ID  E_ID  PREV_LAC   TIMEOUT   PIGGY_BACK   CB                 CTX                EXCEPTION
-              /*  { -1,   -1,   null,     -1,        true,        ParamType.NULL,  ParamType.NULL,    true},
-                { -1,   0,    null,     -1,        true,        ParamType.VALID,   ParamType.NULL,    true},
-                { 0,    -1,   null,     -1,        true,        ParamType.INVALID, ParamType.INVALID, true},
-                { 0,    0,    null,     -1,        false,       ParamType.NULL,    ParamType.VALID,   true},
-                { -1,   -1,   null,     -1,        false,       ParamType.INVALID, ParamType.VALID,   true},
-                { -1,   0,    null,     -1,        false,       ParamType.VALID,   ParamType.NULL,    false},
-                { 0,    -1,   null,     0,         true,        ParamType.NULL,    ParamType.NULL,    true},
-                { 0,    0,    null,     0,         true,        ParamType.INVALID, ParamType.INVALID, true},
-                { -1,   -1,   null,     0,         true,        ParamType.VALID,   ParamType.VALID,   false},
-                { -1,   0,    null,     0,         false,       ParamType.NULL,    ParamType.VALID,   true},
-                { 0,    -1,   null,     0,         false,       ParamType.INVALID, ParamType.NULL,    true},
-                { 0,    0,    null,     0,         false,       ParamType.VALID,   ParamType.NULL,    false},*/
                 { -1,   -1,   null,     null,      true,        ParamType.NULL,    ParamType.INVALID, true},
                 { -1,   0,    null,     null,      true,        ParamType.INVALID, ParamType.VALID,   true},
                 { 0,    -1,   null,     null,      true,        ParamType.VALID,   ParamType.VALID,   false},
                 { 0,    0,    null,     null,      false,       ParamType.NULL,    ParamType.NULL,    false},
                 { -1,   -1,   null,     null,      false,       ParamType.INVALID, ParamType.NULL,    false},
-                { -1,   0,    null,     null,      false,       ParamType.VALID,   ParamType.INVALID, true},
-             /*   { 0,    -1,   -1,       null,      true,        ParamType.NULL,    ParamType.VALID,   false},
-                { 0,    0,    -1,       null,      true,        ParamType.INVALID, ParamType.VALID,   false},
-                { -1,   -1,   -1,       null,      true,        ParamType.VALID,   ParamType.NULL,    false},
-                { -1,   0,    -1,       null,      false,       ParamType.NULL,    ParamType.NULL,    false},
-                { 0,    -1,   -1,       null,      false,       ParamType.INVALID, ParamType.INVALID, true},
-                { 0,    0,    -1,       null,      false,       ParamType.VALID,   ParamType.VALID,   false},
-                { -1,   -1,   0,        null,      true,        ParamType.NULL,    ParamType.VALID,   false},
-                { -1,   0,    0,        null,      true,        ParamType.INVALID, ParamType.NULL,    false},
-                { 0,    -1,   0,        null,      true,        ParamType.VALID,   ParamType.NULL,    false},
-                { 0,    0,    0,        null,      false,       ParamType.NULL,    ParamType.INVALID, true},
-                { -1,   -1,   0,        null,      false,       ParamType.INVALID, ParamType.VALID,   false},
-                { -1,   0,    0,        null,      false,       ParamType.VALID,   ParamType.VALID,   false}*/
+                { -1,   0,    null,     null,      false,       ParamType.VALID,   ParamType.INVALID, true}
         });
     }
 

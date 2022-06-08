@@ -139,6 +139,15 @@ public class JournalTest {
                 Assert.assertNotEquals("actualOutput == (un)expectedOutput", this.expectedOutput, actualOutput);
             }
 
+            List<Long> actualJournalIds;
+            actualJournalIds = Journal.listJournalIds(new File("C:\\OneDrive:\\Desktop:\\Work in progress\\" +
+                    "Progetti ISW2\\ba-dua\\empty-dir"), null);
+            Assert.assertTrue("actualJournalIds is not empty for empty dir", actualJournalIds.isEmpty());
+            actualJournalIds = Journal.listJournalIds(new File("C:\\OneDrive:\\Desktop:\\Work in progress\\" +
+                    "Homework MA"), null);
+            Assert.assertTrue("actualJournalIds is not empty for non-empty dir without journals",
+                    actualJournalIds.isEmpty());
+
         } catch(Exception e) {
             Assert.assertTrue("No exception was expected, but " + e.getClass().getName() + " has been thrown.",
                     this.isExceptionExpected);
