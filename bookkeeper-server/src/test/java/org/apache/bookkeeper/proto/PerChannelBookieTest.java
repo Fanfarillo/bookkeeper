@@ -108,7 +108,7 @@ public class PerChannelBookieTest {
             }
 
         } catch(Exception e) {
-            Assert.assertSame("An exception should be thrown during configuration only if namesType == INVALID."
+            Assert.assertSame("An exception should be thrown during configuration only if readCtxType == INVALID."
                     + " Instead, " + e.getClass().getName() + " has been thrown and readCtxType == "
                     + readCtxType + ".", readCtxType, ParamType.INVALID);
             this.isExceptionThrown = true;

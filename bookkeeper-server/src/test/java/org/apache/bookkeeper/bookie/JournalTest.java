@@ -45,20 +45,7 @@ public class JournalTest {
         this.journalPos = journalPos;
         this.isExceptionExpected = isExceptionExpected;
         try {
-            File journalDir = createTempDir("journal");
-            BookieImpl.checkDirectoryStructure(BookieImpl.getCurrentDirectory(journalDir));
-            File ledgerDir = createTempDir("ledger");
-            BookieImpl.checkDirectoryStructure(BookieImpl.getCurrentDirectory(ledgerDir));
-
-            JournalUtil.writeV4Journal(BookieImpl.getCurrentDirectory(journalDir), 100, "test".getBytes());
-
-            ServerConfiguration conf = TestBKConfiguration.newServerConfiguration();
-            conf.setJournalDirName(journalDir.getPath())
-                    .setLedgerDirNames(new String[] { ledgerDir.getPath() })
-                    .setMetadataServiceUri(null);
-
-            this.bookie = new TestBookieImpl(conf);
-            this.journal = this.bookie.journals.get(0);
+            this.journal = getJournal();
             long actualJournalId = Journal.listJournalIds(this.journal.getJournalDirectory(), null).get(0);
 
             switch(readJournalIdType) {
@@ -122,12 +109,30 @@ public class JournalTest {
         return dir;
     }
 
+    private Journal getJournal() throws Exception {
+
+        File journalDir = createTempDir("journal");
+        BookieImpl.checkDirectoryStructure(BookieImpl.getCurrentDirectory(journalDir));
+        File ledgerDir = createTempDir("ledger");
+        BookieImpl.checkDirectoryStructure(BookieImpl.getCurrentDirectory(ledgerDir));
+
+        JournalUtil.writeV4Journal(BookieImpl.getCurrentDirectory(journalDir), 100, "test".getBytes());
+
+        ServerConfiguration conf = TestBKConfiguration.newServerConfiguration();
+        conf.setJournalDirName(journalDir.getPath())
+                .setLedgerDirNames(new String[] { ledgerDir.getPath() })
+                .setMetadataServiceUri(null);
+
+        this.bookie = new TestBookieImpl(conf);
+        return this.bookie.journals.get(0);
+
+    }
+
     @Test
     public void testScanJournal() {
 
         try {
             long actualOutput = this.journal.scanJournal(this.readJournalId, this.journalPos, this.scanner);
-            Assert.assertFalse("An exception was expected.", this.isExceptionExpected);
 
             //if readJournalId != actualJournalId then actualOutput must be 516 (expected)
             //if readJournalId == actualJournalId and journalPos<=0 then actual output must be 106.860 (expected)
@@ -147,6 +152,12 @@ public class JournalTest {
                     "Homework MA"), null);
             Assert.assertTrue("actualJournalIds is not empty for non-empty dir without journals",
                     actualJournalIds.isEmpty());
+
+            CheckpointSource.Checkpoint checkpoint = this.journal.newCheckpoint();
+            this.journal.checkpointComplete(checkpoint, true);
+            this.journal.checkpointComplete(null, true);
+
+            Assert.assertFalse("An exception was expected.", this.isExceptionExpected);
 
         } catch(Exception e) {
             Assert.assertTrue("No exception was expected, but " + e.getClass().getName() + " has been thrown.",

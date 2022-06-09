@@ -433,11 +433,13 @@
             <configuration>
               <targetClasses>
                 <param>org.apache.bookkeeper.proto.PerChannelBookieClient</param>
+		<param>org.apache.bookkeeper.bookie.Journal</param>
               </targetClasses>
               <targetTests>
                 <param>org.apache.bookkeeper.proto.PerChannelBookieTest</param>
                 <param>org.apache.bookkeeper.proto.PerChannelBookieBisTest</param>
 		<param>org.apache.bookkeeper.proto.PerChannelBookieTrisTest</param>
+		<param>org.apache.bookkeeper.bookie.JournalTest</param>
               </targetTests>
               <avoidCallsTo>
                 <avoidCallsTo>org.slf4j</avoidCallsTo>
