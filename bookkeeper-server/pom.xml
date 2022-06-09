@@ -440,6 +440,7 @@
                 <param>org.apache.bookkeeper.proto.PerChannelBookieBisTest</param>
 		<param>org.apache.bookkeeper.proto.PerChannelBookieTrisTest</param>
 		<param>org.apache.bookkeeper.bookie.JournalTest</param>
+		<param>org.apache.bookkeeper.bookie.JournalBisTest</param>
               </targetTests>
               <avoidCallsTo>
                 <avoidCallsTo>org.slf4j</avoidCallsTo>
